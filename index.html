@@ -1,1 +1,305 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ABOVE THE RIM</title><link rel="stylesheet" href="style.css"></head><body><div id="app"><div id="menu" class="panel"><div class="eyebrow">RISE ABOVE. OWN THE COURT.</div><h1>ABOVE <span>THE RIM</span></h1><p>BUILD YOUR LEGACY</p><div id="profile"></div><div class="modes"><button data-mode="quick">QUICK PLAY <small>1v1 vs CPU</small></button><button data-mode="street">STREETBALL <small>Outdoor 1v1</small></button><button data-mode="career">MYCAREER <small>Earn XP & upgrade</small></button><button data-mode="champ">CHAMPIONSHIP <small>First to 3 wins</small></button><button data-mode="practice">PRACTICE GYM <small>Unlimited shots</small></button><button data-mode="custom">MYPLAYER <small>Customize your athlete</small></button></div><p class="muted">Online multiplayer and accounts are planned, not yet available.</p></div><div id="custom" class="panel hidden"><h2>MYPLAYER</h2><label>PLAYER NAME <input id="playerName" maxlength="18"></label><label>JERSEY NUMBER <input id="jersey" type="number" min="0" max="99"></label><label>JERSEY COLOR <input id="color" type="color"></label><div id="upgrades"></div><button id="savePlayer">SAVE PLAYER</button><button class="secondary" id="customBack">BACK</button></div><div id="hud" class="hidden"><div class="scoreboard"><span id="modeLabel">QUICK PLAY</span><strong><span id="homeScore">0</span> : <span id="awayScore">0</span></strong><span id="clock">03:00</span></div><div id="feedback"></div><div id="meter" class="hidden"><div id="meterFill"></div><div id="green"></div></div><div id="gameBottom"><span id="stats"></span><button id="pause">MENU</button></div><div class="help">WASD / ARROWS MOVE · SHIFT SPRINT · HOLD & RELEASE SPACE SHOOT · E STEAL · Q CROSSOVER · R RESET (PRACTICE)</div></div><div id="toast" class="hidden"></div><div id="loading">LOADING COURT...</div></div><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script><script type="module" src="main.js"></script></body></html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b12">
+
+  <title>ABOVE THE RIM | Rise Above. Own the Court.</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+  <!-- 3D GAME CANVAS -->
+  <div id="game-container"></div>
+
+  <!-- CINEMATIC OVERLAY -->
+  <div id="vignette"></div>
+
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen" class="screen">
+    <div class="loading-content">
+      <div class="brand-small">ATR // BASKETBALL</div>
+      <h1>ABOVE <span>THE RIM</span></h1>
+      <p>RISE ABOVE. OWN THE COURT.</p>
+      <div class="loading-track">
+        <div id="loading-bar"></div>
+      </div>
+      <div id="loading-text">PREPARING THE ARENA</div>
+    </div>
+  </div>
+
+  <!-- WELCOME SCREEN -->
+  <section id="welcome-screen" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">ATR<span>.</span></div>
+      <div class="topbar-right">THE NEXT GENERATION OF BASKETBALL</div>
+    </header>
+
+    <div class="hero-content">
+      <div class="eyebrow">
+        THE COURT IS YOURS
+      </div>
+
+      <h1 class="hero-title">
+        ABOVE
+        <span>THE RIM</span>
+      </h1>
+
+      <p class="hero-tagline">
+        RISE ABOVE. OWN THE COURT.
+      </p>
+
+      <p class="hero-description">
+        Build your player. Master your game.
+        Create your basketball legacy.
+      </p>
+
+      <button id="enter-game" class="primary-btn">
+        ENTER THE COURT
+        <span>→</span>
+      </button>
+
+      <div class="hero-footer">
+        ORIGINAL 3D BASKETBALL EXPERIENCE
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN MENU -->
+  <section id="main-menu" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">ABOVE <span>THE RIM</span></div>
+
+      <div class="topbar-right">
+        <div id="menu-player-name">ROOKIE</div>
+        <div id="menu-player-level">LVL 1</div>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <aside class="dashboard-sidebar">
+        <div class="eyebrow">WELCOME TO YOUR LEGACY</div>
+
+        <h2>THE GAME<br><span>STARTS HERE.</span></h2>
+
+        <nav class="main-navigation">
+          <button class="nav-item active" data-mode="quick">
+            <span>01</span> PLAY NOW
+          </button>
+
+          <button class="nav-item" data-mode="career">
+            <span>02</span> MYCAREER
+          </button>
+
+          <button class="nav-item" data-mode="street">
+            <span>03</span> STREETBALL
+          </button>
+
+          <button class="nav-item" data-mode="champ">
+            <span>04</span> CHAMPIONSHIP
+          </button>
+
+          <button class="nav-item" data-mode="practice">
+            <span>05</span> PRACTICE GYM
+          </button>
+
+          <button class="nav-item" data-mode="custom">
+            <span>06</span> MYPLAYER
+          </button>
+
+          <button class="nav-item" id="open-settings">
+            <span>07</span> SETTINGS
+          </button>
+        </nav>
+
+        <div class="menu-profile">
+          <div class="profile-label">YOUR LEGACY</div>
+          <div id="profile">ROOKIE • LEVEL 1</div>
+        </div>
+      </aside>
+
+      <div class="dashboard-feature">
+        <div class="feature-tag">FEATURED EXPERIENCE</div>
+
+        <h2>OWN<br>THE <span>COURT.</span></h2>
+
+        <p>
+          Your journey to basketball greatness begins now.
+        </p>
+
+        <button id="featured-play" class="primary-btn">
+          PLAY NOW →
+        </button>
+
+        <div class="feature-bottom">
+          <span>BUILT FOR COMPETITION</span>
+          <span>ABOVE THE RIM</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MYPLAYER CUSTOMIZATION -->
+  <section id="custom" class="screen hidden">
+    <header class="topbar">
+      <div class="brand">MY<span>PLAYER</span></div>
+      <button id="customBack" class="text-btn">← BACK</button>
+    </header>
+
+    <div class="custom-layout">
+      <div class="custom-panel">
+        <div class="eyebrow">BUILD YOUR LEGACY</div>
+        <h2>CREATE YOUR <span>PLAYER</span></h2>
+
+        <div class="form-grid">
+          <label>
+            PLAYER NAME
+            <input id="playerName" maxlength="18"
+                   placeholder="YOUR PLAYER NAME">
+          </label>
+
+          <label>
+            JERSEY NUMBER
+            <input id="jersey" type="number"
+                   min="0" max="99" value="23">
+          </label>
+
+          <label>
+            JERSEY COLOR
+            <input id="color" type="color" value="#2288ff">
+          </label>
+        </div>
+
+        <h3>PLAYER ATTRIBUTES</h3>
+        <div id="upgrades"></div>
+
+        <button id="savePlayer" class="primary-btn">
+          SAVE MYPLAYER →
+        </button>
+      </div>
+
+      <div class="player-preview-label">
+        YOUR PLAYER. YOUR LEGACY.
+      </div>
+    </div>
+  </section>
+
+  <!-- MATCH HUD -->
+  <section id="hud" class="hidden">
+
+    <div class="match-scoreboard">
+      <div class="score-team">
+        <span class="team-name">HOME</span>
+        <strong id="homeScore">0</strong>
+      </div>
+
+      <div class="score-center">
+        <span id="modeLabel">QUICK PLAY</span>
+        <div id="clock">03:00</div>
+      </div>
+
+      <div class="score-team">
+        <strong id="awayScore">0</strong>
+        <span class="team-name">AWAY</span>
+      </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="meter" class="hidden">
+      <div class="meter-label">SHOT TIMING</div>
+      <div class="meter-track">
+        <div id="green"></div>
+        <div id="meterFill"></div>
+      </div>
+    </div>
+
+    <div id="gameBottom">
+      <div class="player-hud">
+        <div class="player-hud-tag">MYPLAYER</div>
+        <div id="stats">ROOKIE</div>
+      </div>
+
+      <button id="pause" class="hud-button">
+        EXIT MATCH
+      </button>
+    </div>
+
+    <div class="help">
+      WASD MOVE · SHIFT SPRINT · SPACE SHOOT ·
+      Q CROSSOVER · E STEAL
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings-screen" class="screen hidden">
+    <div class="settings-panel">
+      <div class="eyebrow">PERSONALIZE YOUR EXPERIENCE</div>
+      <h2>GAME <span>SETTINGS</span></h2>
+
+      <label>
+        GRAPHICS QUALITY
+        <select id="graphics-quality">
+          <option value="high">HIGH</option>
+          <option value="medium">MEDIUM</option>
+          <option value="low">LOW</option>
+        </select>
+      </label>
+
+      <label>
+        CAMERA STYLE
+        <select id="camera-style">
+          <option value="broadcast">BROADCAST</option>
+          <option value="follow">PLAYER FOLLOW</option>
+        </select>
+      </label>
+
+      <button id="settings-back" class="primary-btn">
+        SAVE & RETURN
+      </button>
+    </div>
+  </section>
+
+  <!-- MATCH RESULTS -->
+  <section id="results-screen" class="screen hidden">
+    <div class="results-content">
+      <div class="eyebrow">FINAL BUZZER</div>
+
+      <h1 id="result-title">VICTORY</h1>
+
+      <div id="result-score">0 - 0</div>
+
+      <p id="result-details">
+        THE GAME IS COMPLETE.
+      </p>
+
+      <button id="return-menu" class="primary-btn">
+        RETURN TO MAIN MENU →
+      </button>
+    </div>
+  </section>
+
+  <!-- TOAST MESSAGES -->
+  <div id="toast" class="hidden"></div>
+
+  <!-- THREE.JS -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+    }
+  }
+  </script>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
